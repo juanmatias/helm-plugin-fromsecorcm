@@ -1,0 +1,9 @@
+name: "fromsecorcm"
+version: "0.1.0"
+usage: "Get values from secrets or cm to put into templates"
+description: |-
+        This plugin is a wrapper for install or update. It looks for replace vars in the form: {{ fromsecorcm (sec|cm) name key }}
+        fromsecorcm will replace this replace var with the value of key in the secret (sec) or configmap (cm) of name that lives in the namespace deployment is made to. If no cm or sec or key is found a value of none is set.
+ignoreFlags: false
+useTunnel: false
+command: "$HELM_PLUGIN_DIR/fromsecorcm.sh"
