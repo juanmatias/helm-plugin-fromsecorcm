@@ -46,4 +46,15 @@ e.g.
 
     helm fromsecorcm install --name kungfu --namespace kungfu -f values.yaml .
 
+## Use case
+
+Why I did this plugin?
+
+This is the scenario. You automate infra provisioning with Terraform. Then automatically you deploy an ingress-controller against an ELB (AWS) using *internal* mode.
+
+This gives you an URL. So you can capture it and store it into a secret or configmap for later use.
+
+Later you deploy your project,that use an ingress and needs to know the host (the url you previously deployed). So you can take it from your secret or configmap automatically when deploy with helm.
+
+That's it.
 
