@@ -146,7 +146,7 @@ do
   fi
     
   CMD=$CMD" $KINDNAME -o yaml"
-  ECMD=$CMD' | grep "'$KINDKEY':" | cat'
+  ECMD=$CMD' | grep "\b'$KINDKEY':" | cat'
   VALUE=$(eval $ECMD)
   if [ -z "$VALUE" ];
   then
