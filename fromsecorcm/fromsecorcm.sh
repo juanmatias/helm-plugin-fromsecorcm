@@ -71,7 +71,7 @@ VALUESFILEWIP=$VALUESFILE".wip"
 cp $VALUESFILE $VALUESFILEWIP
 
 # Get namespace if any
-NAMESPACE=$(echo $@ | sed -e 's/.*\(--namespace\|-n\)\(\s\+\|=\)\([-a-z]\+\).*/\3/')
+NAMESPACE=$(echo $@ | sed -e 's/.*\(--namespace\|-n\)\(\s\+\|=\)\([-a-z0-9]\+\).*/\3/')
 
 if [ "$NAMESPACE" = "$PARAMS" ];
 then
@@ -79,11 +79,11 @@ then
 fi
 
 # Loop through file looking for replacement vars
-REPVAR=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z]*.[-a-z]*[[:space:]]*}}' $VALUESFILEWIP | wc -l)
+REPVAR=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z0-9]*.[-a-z0-9]*[[:space:]]*}}' $VALUESFILEWIP | wc -l)
 until [ "$REPVAR" = "0" ];
 do
   # Look for and replace repvars
-  REPVARWIP=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z]*.[-a-z]*[[:space:]]*}}' $VALUESFILEWIP | head -1 )
+  REPVARWIP=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z0-9]*.[-a-z0-9]*[[:space:]]*}}' $VALUESFILEWIP | head -1 )
   KIND=$(echo "$REPVARWIP" | sed -e 's/{{\s*\.\([^\.]\+\).\([^\.]\+\).\([^\.]\+\).\s*}}/\1 \2 \3/g')
   KINDNAME=$(echo "$KIND" | awk '{ print $2 }')
   KINDKEY=$(echo "$KIND" | awk '{ print $3 }')
@@ -107,7 +107,7 @@ do
     rm $VALUESFILEWIP
     exit 1
   fi
-  KINDCHECK=$(echo "$KINDNAME"  | sed -e 's/[-a-z]\+//')
+  KINDCHECK=$(echo "$KINDNAME"  | sed -e 's/[-a-z0-9]\+//')
   if [ ! -z $KINDCHECK ];
   then
     echo "Bad name: $KINDNAME"
@@ -115,7 +115,7 @@ do
     rm $VALUESFILEWIP
     exit 1
   fi
-  KINDCHECK=$(echo "$KINDKEY"  | sed -e 's/[-a-z]\+//')
+  KINDCHECK=$(echo "$KINDKEY"  | sed -e 's/[-a-z0-9]\+//')
   if [ ! -z $KINDCHECK ];
   then
     echo "Bad key: $KINDKEY"
@@ -144,7 +144,7 @@ do
   then
     CMD=$CMD" -n $NAMESPACE"
   fi
-    
+
   CMD=$CMD" $KINDNAME -o yaml"
   ECMD=$CMD' | grep "\b'$KINDKEY':" | cat'
   VALUE=$(eval $ECMD)
@@ -164,7 +164,7 @@ do
     exit 1
   fi
   # value should be "key: value" so let's get the actual value
-  VALUEACTUAL=$(echo "$VALUE" | sed -e 's/^\s\+[-a-zA-Z]\+:\s\+\(.\+\)$/\1/')
+  VALUEACTUAL=$(echo "$VALUE" | sed -e 's/^\s\+[-a-z0-9A-Z]\+:\s\+\(.\+\)$/\1/')
 
   if [ "$KIND" = "Secret" ];
   then
@@ -174,7 +174,7 @@ do
   # Now replace the actual value
   CMD="sed -i -e 's/{{\s*\.'$KIND'.'$KINDNAME'.'$KINDKEY'.\s*}}/'$VALUEACTUAL'/g' $VALUESFILEWIP"
   eval $CMD
-  REPVAR=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z]*.[-a-z]*[[:space:]]*}}' $VALUESFILEWIP | wc -l)
+  REPVAR=$(grep -o '{{[[:space:]]*.\(Secret\|Configmap\).[-a-z0-9]*.[-a-z0-9]*[[:space:]]*}}' $VALUESFILEWIP | wc -l)
 
 done
 
